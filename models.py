@@ -1,8 +1,8 @@
 from sqlalchemy import Text, String, Column, Integer, DateTime
 from sqlalchemy.sql import func
-from database import base
+from database import Base
 
-class Label(base):
+class Label(Base):
     __tablename__="labels"
     id=Column(Integer, primary_key=True, index=True)
     prompt=Column(Text, nullable=False)
