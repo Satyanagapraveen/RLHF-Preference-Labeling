@@ -1,0 +1,22 @@
+[
+  {
+    "category": "database",
+    "prompt": "Explain the difference between optimistic and pessimistic locking in a PostgreSQL inventory system."
+  },
+  {
+    "category": "ai_development",
+    "prompt": "How do you fine-tune a local Llama model using LoRA for structured JSON extraction?"
+  },
+  {
+    "category": "cinema",
+    "prompt": "Pitch a concept for a Telugu sci-fi horror movie involving an AI gone rogue."
+  },
+  {
+    "category": "frontend",
+    "prompt": "What is the best way to structure a multi-role dashboard in React and Tailwind CSS?"
+  },
+  {
+    "category": "hackathon",
+    "prompt": "Suggest a scalable backend architecture for a health and sports-themed hackathon project."
+  }
+]

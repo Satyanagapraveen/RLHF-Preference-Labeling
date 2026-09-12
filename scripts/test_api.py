@@ -11,7 +11,7 @@ def test_llm_connection():
         messages=[{
             "role":"user", "content":"Explain binary Search in One Sentence."
         }],
-        model="qwen/qwen3.8-27b",
+        model=os.getenv("GROQ_MODEL"),
     )
     print(response.choices[0].message.content)
 
