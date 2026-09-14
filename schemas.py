@@ -4,7 +4,7 @@ from datetime import datetime
 
 class LabelSubmitRequest(BaseModel):
     pair_id:int
-    annotater_id:str=Field(...,min_length=1,max_length=255)
+    annotator_id:str=Field(...,min_length=1,max_length=255)
     chosen: Literal["A","B","tie","skip"]
 
 class PromptPairResponse(BaseModel):
