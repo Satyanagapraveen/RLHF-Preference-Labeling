@@ -1,10 +1,13 @@
 from fastapi import FastAPI,Depends, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
+from typing import Optional
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from database import get_db
 from collections import defaultdict, Counter
 import schemas
 import models
+import json
 
 app=FastAPI(title="RLHF Labeling API")
 
@@ -85,3 +88,36 @@ def get_analytics(db: Session = Depends(get_db)):
         "label_distribution": distribution,
         "agreement_rate": round(agreement_rate, 2)
     }
+
+@app.get("/api/export")
+def export_labels(category: Optional[str] = None, db: Session = Depends(get_db)):
+    query = db.query(models.Label).filter(
+        models.Label.annotator_id != "system",
+        models.Label.chosen.in_(["A", "B"])
+    )
+    
+    if category:
+        query = query.filter(models.Label.category == category)
+        
+    def generate_jsonl():
+        for row in query.yield_per(100):
+            if row.chosen == "A":
+                chosen_text = row.response_a
+                rejected_text = row.response_b
+            else:
+                chosen_text = row.response_b
+                rejected_text = row.response_a
+                
+            export_dict = {
+                "prompt": row.prompt,
+                "chosen": chosen_text,
+                "rejected": rejected_text
+            }
+            
+            yield json.dumps(export_dict) + "\n"
+            
+    headers = {
+        "Content-Disposition": 'attachment; filename="labels.jsonl"'
+    }
+    
+    return StreamingResponse(generate_jsonl(), media_type="application/x-jsonlines", headers=headers)
