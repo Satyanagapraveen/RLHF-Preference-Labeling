@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Literal
+from typing import Optional, Literal, Dict
 from datetime import datetime
 
 class LabelSubmitRequest(BaseModel):
@@ -29,3 +29,8 @@ class LabelDetailResponse(BaseModel):
 
     class Config:
         from_attributes=True
+
+class AnalyticsResponse(BaseModel):
+    total_labels: int
+    label_distribution: Dict[str,int]
+    agreement_rate: float

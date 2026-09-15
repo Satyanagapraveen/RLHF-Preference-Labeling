@@ -2,6 +2,7 @@ from fastapi import FastAPI,Depends, HTTPException, Query, status
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from database import get_db
+from collections import defaultdict, Counter
 import schemas
 import models
 
@@ -51,3 +52,36 @@ def submit_label(label_data:schemas.LabelSubmitRequest, db:Session=Depends(get_d
     db.commit()
     
     return {"message": "Label submitted successfully"}
+
+@app.get("/api/analytics", response_model=schemas.AnalyticsResponse)
+def get_analytics(db: Session = Depends(get_db)):
+    human_labels = db.query(models.Label).filter(models.Label.annotator_id != "system").all()
+    
+    total_labels = len(human_labels)
+    
+    distribution = {"A": 0, "B": 0, "tie": 0, "skip": 0}
+    for label in human_labels:
+        if label.chosen in distribution:
+            distribution[label.chosen] += 1
+            
+    prompt_groups = defaultdict(list)
+    for label in human_labels:
+        prompt_groups[label.prompt].append(label.chosen)
+        
+    multi_label_pairs = 0
+    agreeing_pairs = 0
+    
+    for choices in prompt_groups.values():
+        if len(choices) > 1:
+            multi_label_pairs += 1
+            most_common_count = Counter(choices).most_common(1)[0][1]
+            if most_common_count > len(choices) / 2:
+                agreeing_pairs += 1
+                
+    agreement_rate = (agreeing_pairs / multi_label_pairs) if multi_label_pairs > 0 else 0.0
+    
+    return {
+        "total_labels": total_labels,
+        "label_distribution": distribution,
+        "agreement_rate": round(agreement_rate, 2)
+    }
