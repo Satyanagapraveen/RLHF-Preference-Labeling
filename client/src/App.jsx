@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getNextPair, submitLabel } from './services/api';
+import Analytics from './Analytics';
 
 function App() {
   const [annotatorId] = useState('user_1');
@@ -7,6 +8,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [finished, setFinished] = useState(false);
   const [sessionCount, setSessionCount] = useState(0);
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   const loadPair = useCallback(async () => {
     setLoading(true);
@@ -71,14 +73,25 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-5xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
+       <header className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800">RLHF Annotation Interface</h1>
-          <div className="text-gray-600 font-medium">Session Labels: {sessionCount}</div>
+          <div className="flex items-center gap-6">
+            <div className="text-gray-600 font-medium">Session Labels: {sessionCount}</div>
+            <button
+              onClick={() => setShowAnalytics(!showAnalytics)}
+              className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded font-medium transition-colors"
+            >
+              {showAnalytics ? "Back to Labeling" : "View Analytics"}
+            </button>
+          </div>
         </header>
-
-        {loading ? (
+        {showAnalytics ? (
+          <Analytics />
+        ) : loading ? (
+          // ... rest of the existing code exactly as it was ...
           <div className="flex justify-center py-20 text-xl text-blue-500 animate-pulse">Loading next pair...</div>
         ) : pair && (
+          // ... rest of the existing code exactly as it was ..
           <div className="space-y-6">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
               <h2 className="text-sm font-bold text-gray-500 uppercase mb-2">Prompt</h2>
